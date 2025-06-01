@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'用户信息：'+customer.customerName}"/>
+    <link rel="stylesheet" type="text/css" href="/static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/H-ui.admin.css" />
+</head>
+<body>
+<div class="page-container">
+    <h2>用户详细信息</h2>
+    <div class="mt-20">
+        <table class="table table-border table-bordered">
+            <tr>
+                <th width="30%">用户ID：</th>
+                <td th:text="${customer.customerId}"></td>
+            </tr>
+            <tr>
+                <th>用户名：</th>
+                <td th:text="${customer.customerName}"></td>
+            </tr>
+            <tr>
+                <th>性别：</th>
+                <td th:text="${customer.customerSex == 1 ? '男' : '女'}"></td>
+            </tr>
+            <tr>
+                <th>手机号：</th>
+                <td th:text="${customer.customerNumber}"></td>
+            </tr>
+            <tr>
+                <th>邮箱：</th>
+                <td th:text="${customer.customerMailbox}"></td>
+            </tr>
+            <tr>
+                <th>会员等级：</th>
+                <td>
+                    <span th:if="${customer.customerLevel == 1}">普通会员</span>
+                    <span th:if="${customer.customerLevel == 2}">银卡会员</span>
+                    <span th:if="${customer.customerLevel == 3}">金卡会员</span>
+                    <span th:if="${customer.customerLevel == 4}">铂金会员</span>
+                    <span th:if="${customer.customerLevel == 5}">钻石会员</span>
+                </td>
+            </tr>
+            <tr>
+                <th>创建时间：</th>
+                <td th:text="${customer.gmtCreate}"></td>
+            </tr>
+            <tr>
+                <th>最后修改：</th>
+                <td th:text="${customer.gmtModify}"></td>
+            </tr>
+            <tr>
+                <th>用户状态：</th>
+                <td th:text="${customer.customerStatus == 1 ? '正常' : '已停用'}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="text-c mt-20">
+        <button class="btn btn-default radius" onclick="closeWindow()">关闭</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="/static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript">
+    function closeWindow() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    }
+</script>
+</body>
+</html>

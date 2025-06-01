@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+   <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>确定要将该产品下架？</h1>
+<h2>
+    <b th:text="${customer.customerId}"/>
+    <b th:text="${customer.customerName}"/>
+    <b th:text="${customer.customerNumber}"/>
+    <b th:text="${customer.customerLevel}"/>
+    <b th:text="${customer.gmtCreate}"/>
+    <b th:text="${customer.gmtModify}"/>
+
+</h2>
+<a th:href="@{offline_confirm(customerid=${customer.customerId})}">下架</a>
+</body>
+</html>

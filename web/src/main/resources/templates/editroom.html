@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="/lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/style.css" />
+    <title th:text="${'编辑房间：'+room.roomName}"></title>
+</head>
+<body>
+<article class="page-container">
+    <form class="form form-horizontal" id="form-room-edit" enctype="multipart/form-data">
+        <input type="hidden" name="roomId" th:value="${room.roomId}" />
+        <input type="hidden" name="roomStatus" th:value="${room.roomStatus}" />
+
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>房间名称：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" th:value="${room.roomName}" placeholder="请输入房间名称" id="roomName" name="roomName">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>房间类型：</label>
+            <div class="formControls col-xs-8 col-sm-9 skin-minimal">
+                <div class="radio-box">
+                    <input name="category" type="radio" id="category-1" value="1" th:checked="${room.category == 1}">
+                    <label for="category-1">普通房间</label>
+                </div>
+                <div class="radio-box">
+                    <input type="radio" id="category-2" name="category" value="0" th:checked="${room.category == 0}">
+                    <label for="category-2">特殊房间</label>
+                </div>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>星级：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <select class="select" id="starRating" name="starRating">
+                    <option value="1星" th:selected="${room.starRating == '1星'}">1星</option>
+                    <option value="2星" th:selected="${room.starRating == '2星'}">2星</option>
+                    <option value="3星" th:selected="${room.starRating == '3星'}">3星</option>
+                    <option value="4星" th:selected="${room.starRating == '4星'}">4星</option>
+                    <option value="5星" th:selected="${room.starRating == '5星'}">5星</option>
+                </select>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>价格：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" th:value="${room.roomPrice}" placeholder="请输入价格" id="roomPrice" name="roomPrice">
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">当前图片：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <img th:src="@{${room.roomImage}}" style="max-width: 200px; max-height: 200px;" />
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">更新图片：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <div class="uploader-thum-container">
+                    <div id="fileList" class="uploader-list"></div>
+                    <div class="btn-upload">
+                        <input class="input-file" type="file" name="roomImage" id="roomImage">
+                        <button class="btn btn-primary radius" type="button">选择新图片</button>
+                    </div>
+                    <div id="imgPreview" style="margin-top: 10px; display: none;">
+                        <img id="preview" src="" style="max-width: 200px; max-height: 200px;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">房间描述：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <textarea name="roomContent" id="roomContent" class="textarea" placeholder="请输入房间详细描述..." th:text="${room.roomContent}"></textarea>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">创建时间：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" th:value="${room.gmtCreate}" readonly>
+            </div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">最后修改：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" th:value="${room.gmtModify}" readonly>
+            </div>
+        </div>
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;保存修改&nbsp;&nbsp;">
+            </div>
+        </div>
+    </form>
+</article>
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="/static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="/static/h-ui.admin/js/H-ui.admin.js"></script>
+<!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="/lib/jquery.validation/1.14.0/jquery.validate.js"></script>
+<script type="text/javascript" src="/lib/jquery.validation/1.14.0/validate-methods.js"></script>
+<script type="text/javascript" src="/lib/jquery.validation/1.14.0/messages_zh.js"></script>
+<script type="text/javascript">
+    $(function(){
+        // 图片预览
+        $('#roomImage').change(function(){
+            var file = this.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#preview').attr('src', e.target.result);
+                    $('#imgPreview').show();
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        $('.skin-minimal input').iCheck({
+            checkboxClass: 'icheckbox-blue',
+            radioClass: 'iradio-blue',
+            increaseArea: '20%'
+        });
+
+        $("#form-room-edit").validate({
+            rules:{
+                roomName:{
+                    required:true,
+                    minlength:2
+                },
+                roomPrice:{
+                    required:true,
+                    number:true
+                },
+                roomContent:{
+                    required:true,
+                    minlength:10
+                }
+            },
+            onkeyup:false,
+            focusCleanup:true,
+            success:"valid",
+            submitHandler:function(form){
+                // 创建FormData对象，用于处理文件上传
+                var formData = new FormData(form);
+
+                $.ajax({
+                    type: 'post',
+                    url: "/updateRoom",
+                    data: formData,
+                    processData: false, // 不处理数据
+                    contentType: false, // 不设置内容类型
+                    success: function(response){
+                        layer.msg('修改成功!', {icon:1, time:1000}, function(){
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.location.reload(); // 刷新父页面
+                            parent.layer.close(index);
+                        });
+                    },
+                    error: function(){
+                        layer.msg('服务器错误，请稍后重试', {icon:2, time:2000});
+                    }
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>

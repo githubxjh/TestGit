@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+    <meta http-equiv="Cache-Control" content="no-siteapp" />
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="lib/html5shiv.js"></script>
+    <script type="text/javascript" src="lib/respond.min.js"></script>
+    <![endif]-->
+    <link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+    <link rel="stylesheet" type="text/css" href="lib/Hui-iconfont/1.0.8/iconfont.css" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+    <link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+    <!--[if IE 6]>
+    <script type="text/javascript" src="lib/DD_belatedPNG_0.0.8a-min.js" ></script>
+    <script>DD_belatedPNG.fix('*');</script>
+    <![endif]-->
+    <title>评论列表</title>
+    <style>
+        .star-rating {
+            color: #FFD700;
+        }
+        .user-id-link {
+            color: #0066cc;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<nav class="breadcrumb">
+    <i class="Hui-iconfont">&#xe67f;</i>
+    首页
+    <span class="c-gray en">&gt;</span>
+    评论管理
+    <span class="c-gray en">&gt;</span>
+    评论列表
+    <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a>
+</nav>
+<div class="page-container">
+    <div class="text-c">
+        <span class="select-box inline" style="width:120px">
+		<select id="roomIdFilter" name="roomIdFilter" class="select">
+			<option value="">全部房间</option>
+			<option value="1">房间1</option>
+			<option value="2">房间2</option>
+			<option value="3">房间3</option>
+		</select>
+		</span> 日期范围：
+        <input type="text" onfocus="WdatePicker({ maxDate:'#F{$dp.$D(\'datemax\')||\'%y-%M-%d\'}' })" id="datemin" class="input-text Wdate" style="width:120px;">
+        -
+        <input type="text" onfocus="WdatePicker({ minDate:'#F{$dp.$D(\'datemin\')}',maxDate:'%y-%M-%d' })" id="datemax" class="input-text Wdate" style="width:120px;">
+        <input type="text" name="searchKeyword" id="searchKeyword" placeholder="评论内容、ID" style="width:250px" class="input-text">
+        <button name="" id="searchButton" class="btn btn-success" type="button"><i class="Hui-iconfont">&#xe665;</i> 搜评论</button>
+    </div>
+    <div class="cl pd-5 bg-1 bk-gray mt-20">
+        <span class="l">
+            <a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a>
+            <a href="javascript:;" onclick="comment_add('添加评论','comment-add','800','600')" class="btn btn-primary radius"><i class="Hui-iconfont">&#xe600;</i> 添加评论</a>
+        </span>
+        <span class="r">共有数据：<strong th:text="${total}"></strong> 条</span>
+    </div>
+    <div class="mt-20">
+        <table class="table table-border table-bordered table-bg table-hover table-sort">
+            <thead>
+            <tr class="text-c">
+                <th width="25"><input type="checkbox" name="" value=""></th>
+                <th width="60">评论ID</th>
+                <th width="60">订单ID</th>
+                <th width="60">用户ID</th>
+                <th width="60">房间ID</th>
+                <th>评论内容</th>
+                <th width="80">用户打分</th>
+                <th width="120">评价图</th>
+                <th width="120">创建时间</th>
+                <th width="120">更新时间</th>
+                <th width="120">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="comment:${commentlist}" class="text-c">
+                <td><input type="checkbox" value="1" name=""></td>
+                <td th:text="${comment.commentId}"></td>
+                <td th:text="${comment.orderId}"></td>
+                <td>
+                    <!-- 将用户ID改为可点击链接，点击后跳转到用户详情页 -->
+                    <a class="user-id-link" th:onclick="view_customer([[${comment.customerId}]])" th:text="${comment.customerId}"></a>
+                </td>
+                <td th:text="${comment.roomId}"></td>
+                <td th:text="${comment.commentContent}"></td>
+                <td>
+                    <div class="star-rating">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i class="Hui-iconfont" th:text="${i <= comment.rating ? '&#xe6a9;' : '&#xe6ba;'}"></i>
+                        </span>
+                    </div>
+                </td>
+                <td>
+                    <img th:if="${comment.imageUrl != null && comment.imageUrl != ''}"
+                         th:src="@{${comment.imageUrl}}"
+                         alt="评论图片"
+                         style="width:50px; height:auto;"
+                         onclick="show_img(this.src)">
+                    <span th:if="${comment.imageUrl == null || comment.imageUrl == ''}">无图片</span>
+                </td>
+                <td th:text="${comment.gmtCreate}"></td>
+                <td th:text="${comment.gmtModify}"></td>
+                <td class="f-14 td-manage">
+                    <a style="text-decoration:none" class="ml-5" th:onclick="comment_offline('下架评论', '/offlinecomment/' + [[${comment.commentId}]], '')" href="javascript:;" title="下架"><i class="Hui-iconfont">&#xe6de;</i></a>
+                    <a style="text-decoration:none" class="ml-5" th:onclick="comment_edit('编辑评论：'+[[${comment.commentId}]],'/editcomment/'+[[${comment.commentId}]],'')" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>
+                    <a style="text-decoration:none" class="ml-5" th:onclick="comment_del(this,[[${comment.commentId}]])" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!--_footer 作为公共模版分离出去-->
+<script type="text/javascript" src="lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="lib/jquery.contextmenu/jquery.contextmenu.r2.js"></script>
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="lib/My97DatePicker/4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="lib/datatables/1.10.15/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="lib/laypage/1.2/laypage.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#searchButton').click(function() {
+            var datemin = $('#datemin').val();
+            var datemax = $('#datemax').val();
+            var searchKeyword = $('#searchKeyword').val();
+            var roomId = $('#roomIdFilter').val();
+
+            // 直接在当前页面加载搜索结果
+            $.ajax({
+                type: 'GET',
+                url: '/comment-search',
+                data: {
+                    datemin: datemin,
+                    datemax: datemax,
+                    searchKeyword: searchKeyword,
+                    roomId: roomId
+                },
+                success: function(response) {
+                    console.log(response); // 添加日志，确保数据正确返回
+
+                    // 检查响应是否包含数据
+                    if (response.commentlist && response.total !== undefined) {
+                        // 清空当前表格数据
+                        $('table.table-sort tbody').empty();
+
+                        // 更新总记录数
+                        $('span.r strong').text(response.total);
+
+                        // 填充新的搜索结果
+                        $.each(response.commentlist, function(index, comment) {
+                            var row = '<tr class="text-c">';
+                            row += '<td><input type="checkbox" value="1" name=""></td>';
+                            row += '<td>' + comment.commentId + '</td>';
+                            row += '<td>' + comment.orderId + '</td>';
+                            // 添加用户ID链接
+                            row += '<td><a class="user-id-link" onclick="view_customer(' + comment.customerId + ')">' + comment.customerId + '</a></td>';
+                            row += '<td>' + comment.roomId + '</td>';
+                            row += '<td>' + comment.commentContent + '</td>';
+
+                            // 星级评分
+                            row += '<td><div class="star-rating">';
+                            for (var i = 1; i <= 5; i++) {
+                                if (i <= comment.rating) {
+                                    row += '<i class="Hui-iconfont">&#xe6a9;</i>';
+                                } else {
+                                    row += '<i class="Hui-iconfont">&#xe6ba;</i>';
+                                }
+                            }
+                            row += '</div></td>';
+
+                            // 图片
+                            if (comment.imageUrl && comment.imageUrl != '') {
+                                row += '<td><img src="' + comment.imageUrl + '" alt="评论图片" style="width:50px; height:auto;" onclick="show_img(this.src)"></td>';
+                            } else {
+                                row += '<td>无图片</td>';
+                            }
+
+                            row += '<td>' + comment.gmtCreate + '</td>';
+                            row += '<td>' + comment.gmtModify + '</td>';
+                            row += '<td class="f-14 td-manage">';
+                            row += '<a style="text-decoration:none" class="ml-5" onclick="comment_offline(\'下架评论\', \'/offlinecomment/\' + ' + comment.commentId + ', \'\')" href="javascript:;" title="下架"><i class="Hui-iconfont">&#xe6de;</i></a>';
+                            row += '<a style="text-decoration:none" class="ml-5" onclick="comment_edit(\'编辑评论：'+ comment.commentId + '\',\'/editcomment/\'+ ' + comment.commentId + ',\'\')" href="javascript:;" title="编辑"><i class="Hui-iconfont">&#xe6df;</i></a>';
+                            row += '<a style="text-decoration:none" class="ml-5" onclick="comment_del(this,' + comment.commentId + ')" href="javascript:;" title="删除"><i class="Hui-iconfont">&#xe6e2;</i></a>';
+                            row += '</td>';
+                            row += '</tr>';
+                            $('table.table-sort tbody').append(row);
+                        });
+
+                    } else {
+                        alert('未找到符合条件的评论。');
+                    }
+                },
+                error: function(data) {
+                    console.error("Error:", data);
+                    alert('搜索失败，请检查输入条件或稍后重试。');
+                }
+            });
+        });
+    });
+
+    /*查看用户信息*/
+    function view_customer(customerId) {
+        // 打开只读的用户详情页面
+        layer_show('用户信息', '/viewcustomer/' + customerId, '650', '500');
+
+    }
+
+    /*添加评论*/
+    function comment_add(title, url, w, h) {
+        layer_show(title, url, w, h);
+    }
+
+    /*编辑评论*/
+    function comment_edit(title, url, w, h) {
+        layer_show(title, url, w, h);
+    }
+
+    /*下架评论*/
+    function comment_offline(title, url, w, h) {
+        layer_show(title, url, w, h);
+    }
+
+    /*删除评论*/
+    function comment_del(obj, id) {
+        layer.confirm('确认要删除吗？', function(index) {
+            $.ajax({
+                type: 'POST',
+                url: '/deleteComment',
+                data: {
+                    commentid: id
+                },
+                success: function(response) {
+                    if (response.code == 0) {
+                        $(obj).parents("tr").remove();
+                        layer.msg('已删除!', {icon: 1, time: 1000});
+                    } else {
+                        layer.msg(response.msg || '删除失败，请重试', {icon: 2, time: 2000});
+                    }
+                },
+                error: function(data) {
+                    console.error("Error:", data);
+                    layer.msg('删除失败!', {icon: 2, time: 1000});
+                }
+            });
+        });
+    }
+
+    /*批量删除*/
+    function datadel() {
+        layer.confirm('确认要删除选中的记录吗？', function(index) {
+            // 获取选中的checkbox
+            var checkedBoxes = $('table.table-sort tbody input[type=checkbox]:checked');
+            if (checkedBoxes.length === 0) {
+                layer.msg('请先选择要删除的记录', {icon: 2, time: 1000});
+                return;
+            }
+
+            // 实际应用中，这里应该收集所有选中的ID并发送到后端
+            layer.msg('批量删除功能需要后端支持', {icon: 2, time: 1000});
+        });
+    }
+
+    /*查看大图*/
+    function show_img(src) {
+        var imgHtml = '<img src="' + src + '" width="100%" height="auto"/>';
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 1,
+            area: ['60%', 'auto'],
+            skin: 'layui-layer-nobg', //没有背景色
+            shadeClose: true,
+            content: imgHtml
+        });
+    }
+
+    /* 通用方法：显示层 */
+    function layer_show(title, url, w, h) {
+        if (title == null || title == '') {
+            title = false;
+        }
+        if (url == null || url == '') {
+            url = "404.html";
+        }
+        if (w == null || w == '') {
+            w = 800;
+        }
+        if (h == null || h == '') {
+            h = ($(window).height() - 50);
+        }
+        layer.open({
+            type: 2,
+            area: [w + 'px', h + 'px'],
+            fix: false, // 不固定
+            maxmin: true,
+            shade: 0.4,
+            title: title,
+            content: url
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>下架评论</title>
+    <link rel="stylesheet" type="text/css" href="/static/h-ui/css/H-ui.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/h-ui.admin/css/H-ui.admin.css" />
+</head>
+<body>
+<div class="page-container">
+    <h2>确认下架该评论吗？</h2>
+    <div class="mt-20">
+        <table class="table table-border table-bordered">
+            <tr>
+                <th width="30%">评论ID：</th>
+                <td th:text="${comment.commentId}"></td>
+            </tr>
+            <tr>
+                <th>订单ID：</th>
+                <td th:text="${comment.orderId}"></td>
+            </tr>
+            <tr>
+                <th>用户ID：</th>
+                <td th:text="${comment.customerId}"></td>
+            </tr>
+            <tr>
+                <th>房间ID：</th>
+                <td th:text="${comment.roomId}"></td>
+            </tr>
+            <tr>
+                <th>评论内容：</th>
+                <td th:text="${comment.commentContent}"></td>
+            </tr>
+            <tr>
+                <th>评分：</th>
+                <td>
+                    <div class="star-rating">
+                        <span th:each="i : ${#numbers.sequence(1, 5)}">
+                            <i class="Hui-iconfont" th:text="${i <= comment.rating ? '&#xe6a9;' : '&#xe6ba;'}"></i>
+                        </span>
+                        <span th:text="${comment.rating + '星'}"></span>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${comment.imageUrl != null && comment.imageUrl != ''}">
+                <th>图片：</th>
+                <td><img th:src="@{${comment.imageUrl}}" style="max-width: 200px; max-height: 200px;" /></td>
+            </tr>
+            <tr>
+                <th>创建时间：</th>
+                <td th:text="${comment.gmtCreate}"></td>
+            </tr>
+            <tr>
+                <th>最后修改：</th>
+                <td th:text="${comment.gmtModify}"></td>
+            </tr>
+            <tr>
+                <th>当前状态：</th>
+                <td th:text="${comment.commentStatus == 1 ? '在线' : '已下架'}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="text-c mt-20" th:if="${comment.commentStatus == 1}">
+        <p class="c-red">警告：下架后，该评论将不再对客户可见!</p>
+        <a th:href="@{/offlinecomment/offline_confirm(commentid=${comment.commentId})}" class="btn btn-danger radius">确认下架</a>
+        <button class="btn btn-default radius ml-10" onclick="closeWindow()">取消</button>
+    </div>
+
+    <div class="text-c mt-20" th:if="${comment.commentStatus == 0}">
+        <p class="c-orange">该评论已经处于下架状态。</p>
+        <button class="btn btn-default radius" onclick="closeWindow()">关闭</button>
+    </div>
+</div>
+
+<script type="text/javascript" src="/lib/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/layer/2.4/layer.js"></script>
+<script type="text/javascript" src="/static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript">
+    function closeWindow() {
+        var index = parent.layer.getFrameIndex(window.name);
+        parent.layer.close(index);
+    }
+</script>
+</body>
+</html>

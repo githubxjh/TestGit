@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${'用户ID：'+customer.customerId}"/>
+</head>
+<body>
+<h2></h2>
+<form th:action="@{/updateCustomer}" method="post">
+    <input type="hidden" name="customerId" th:value="${customer.customerId}"/>
+    <label>用户名：</label>
+    <input type="text" name="customerName" th:value="${customer.customerName}"/><br/>
+    <label>密码：</label>
+    <input type="password" name="customerPassword" th:value="${customer.customerPassword}" readonly/><br/>
+    <label>性别：</label>
+    <select name="customerSex">
+        <option th:value="0" th:selected="${customer.customerSex == 0}">0</option>
+        <option th:value="1" th:selected="${customer.customerSex == 1}">1</option>
+    </select><br/>
+    <label>用户编号：</label>
+    <input type="text" name="customerNumber" th:value="${customer.customerNumber}"/><br/>
+    <label>邮箱：</label>
+    <input type="email" name="customerMailbox" th:value="${customer.customerMailbox}"/><br/>
+    <label>等级：</label>
+    <select name="customerLevel">
+        <option th:value="1" th:selected="${customer.customerLevel == 1}">1</option>
+        <option th:value="2" th:selected="${customer.customerLevel == 2}">2</option>
+        <option th:value="3" th:selected="${customer.customerLevel == 3}">3</option>
+        <option th:value="4" th:selected="${customer.customerLevel == 4}">4</option>
+        <option th:value="5" th:selected="${customer.customerLevel == 5}">5</option>
+    </select><br/>
+    <label>创建时间：</label>
+    <input type="text" name="gmtCreate" th:value="${customer.gmtCreate}" readonly/><br/>
+    <label>修改时间：</label>
+    <input type="text" name="gmtModify" th:value="${customer.gmtModify}" readonly/><br/>
+    <label>状态：</label>
+    <input type="text" name="customerStatus" th:value="${customer.customerStatus}" readonly/><br/>
+
+    <input type="submit" value="修改"/>
+</form>
+</body>
+</html>
