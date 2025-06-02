@@ -4,6 +4,7 @@ package com.example.demo.service;
 
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.demo.config.SchedulingProperties;
 import com.example.demo.mapper.RoomFeaturesMapper;
 import com.example.demo.mapper.RoomMapper;
 import com.example.demo.mapper.UserProfileMapper;
@@ -33,14 +34,24 @@ public class FeatureInitializationService {
     @Autowired
     private UserProfileMapper userProfileMapper;
 
+    @Autowired
+    private SchedulingProperties schedulingProperties;
+
     private static final Logger logger = LoggerFactory.getLogger(FeatureInitializationService.class);
 
     /**
      * 初始化所有房间的特征向量
-     * 建议在系统启动时或定时任务中执行
+     * 现在受配置控制，只有在配置允许时才执行
      */
     @PostConstruct
     public void initializeRoomFeatures() {
+        // 检查配置是否允许执行初始化
+        if (!schedulingProperties.shouldExecuteRoomFeaturesInit()) {
+            logger.info("房间特征向量初始化已禁用。当前状态: {}",
+                    schedulingProperties.getStatusDescription());
+            return;
+        }
+
         logger.info("开始初始化房间特征向量...");
 
         try {
@@ -326,9 +337,17 @@ public class FeatureInitializationService {
 
     /**
      * 批量更新房间特征向量
+     * 现在使用配置的cron表达式，并受开关控制
      */
-    @Scheduled(cron = "0 0 2 * * ?") // 每天凌晨2点执行
+    @Scheduled(cron = "#{@schedulingProperties.cron.roomFeaturesUpdate}") // 动态cron表达式
     public void scheduledUpdateRoomFeatures() {
+        // 检查定时任务是否启用
+        if (!schedulingProperties.shouldExecuteRoomFeaturesUpdate()) {
+            logger.debug("房间特征更新定时任务已禁用。当前状态: {}",
+                    schedulingProperties.getStatusDescription());
+            return;
+        }
+
         logger.info("开始定时更新房间特征向量...");
 
         try {
@@ -421,11 +440,28 @@ public class FeatureInitializationService {
             stats.put("initializationRate", totalRooms > 0 ? (double) featuresCount / totalRooms : 0.0);
             stats.put("missingFeatures", totalRooms - featuresCount);
 
+            // 添加配置状态信息
+            stats.put("schedulingStatus", schedulingProperties.getStatusDescription());
+            stats.put("schedulingConfig", schedulingProperties.toString());
+
         } catch (Exception e) {
             logger.error("获取初始化统计信息失败", e);
             stats.put("error", e.getMessage());
         }
 
         return stats;
+    }
+
+    /**
+     * 动态更新定时任务配置（用于运行时控制）
+     */
+    public void updateSchedulingConfig(boolean enabled, boolean roomFeaturesInit,
+                                       boolean roomFeaturesUpdate, boolean userProfileUpdate) {
+        schedulingProperties.setEnabled(enabled);
+        schedulingProperties.setRoomFeaturesInit(roomFeaturesInit);
+        schedulingProperties.setRoomFeaturesUpdate(roomFeaturesUpdate);
+        schedulingProperties.setUserProfileUpdate(userProfileUpdate);
+
+        logger.info("定时任务配置已更新: {}", schedulingProperties.getStatusDescription());
     }
 }

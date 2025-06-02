@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @Configuration
-@EnableScheduling
+//@EnableScheduling
 public class RecommendationConfig {
 
     /**
@@ -37,9 +37,9 @@ public class RecommendationConfig {
     /**
      * Redis缓存配置针对推荐系统优化
      */
-    @Bean("recommendationCacheManager")
+    @Bean("recommendationServiceCacheManager")
     @Primary  // 添加这个注解
-    public CacheManager recommendationCacheManager(RedisConnectionFactory connectionFactory) {
+    public CacheManager recommendationServiceCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(30)) // 推荐结果缓存30分钟
                 .disableCachingNullValues()
