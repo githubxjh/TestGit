@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class RoomService {
     private static final long CACHE_EXPIRATION = 30; // 缓存过期时间（分钟）
 
     /**
-     * 获取指定状态的所有房间（包含设备信息）
+     * 获取指定状态的所有房间（包含设备信息）- 优化版本
      * @param status 房间状态（1:活跃，0:下架）
      * @return 房间列表
      */
@@ -41,14 +42,21 @@ public class RoomService {
         String cacheKey = ROOM_LIST_KEY + status;
 
         // 首先尝试从Redis获取数据
-        @SuppressWarnings("unchecked")
-        List<Room> cachedRooms = (List<Room>) redisTemplate.opsForValue().get(cacheKey);
+        try {
+            @SuppressWarnings("unchecked")
+            List<Room> cachedRooms = (List<Room>) redisTemplate.opsForValue().get(cacheKey);
 
-        if (cachedRooms != null) {
-            return cachedRooms;
+            if (cachedRooms != null && !cachedRooms.isEmpty()) {
+                System.out.println("从Redis缓存获取房间数据，数量: " + cachedRooms.size());
+                return cachedRooms;
+            }
+        } catch (Exception e) {
+            // 缓存读取失败，记录警告但不中断流程
+            System.err.println("Redis缓存读取失败，将从数据库获取数据: " + e.getMessage());
         }
 
-        // 如果缓存中没有，则从数据库获取
+        // 如果缓存中没有或读取失败，则从数据库获取
+        System.out.println("从数据库获取房间数据，状态: " + status);
         List<Room> rooms = roomDao.getAllRoomsByStatus(status);
 
         // 为每个房间加载设备信息
@@ -79,16 +87,23 @@ public class RoomService {
             } catch (Exception e) {
                 // 如果获取设备信息失败，记录日志但不影响房间列表的显示
                 System.err.println("获取房间 " + room.getRoomId() + " 的设备信息失败: " + e.getMessage());
-                e.printStackTrace();
+                // 设置默认值避免空指针
+                room.setEquipmentNames("");
+                room.setEquipmentDetails(new ArrayList<>());
             }
         }
 
-        // 存入缓存并设置过期时间
-        redisTemplate.opsForValue().set(cacheKey, rooms, CACHE_EXPIRATION, TimeUnit.MINUTES);
+        // 尝试存入缓存
+        try {
+            redisTemplate.opsForValue().set(cacheKey, rooms, CACHE_EXPIRATION, TimeUnit.MINUTES);
+            System.out.println("房间数据已存入Redis缓存，key: " + cacheKey);
+        } catch (Exception e) {
+            // 缓存写入失败，记录警告但不中断流程
+            System.err.println("Redis缓存写入失败: " + e.getMessage());
+        }
 
         return rooms;
     }
-
     /**
      * 根据条件搜索房间（包含设备信息）
      */
