@@ -1,5 +1,5 @@
-package com.example.demo.model;
 
+package com.example.demo.model;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

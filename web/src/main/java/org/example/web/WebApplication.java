@@ -8,10 +8,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@MapperScan("com.example.demo.mapper") // 修复：只扫描Mapper所在的具体包
-@ComponentScan({"org.example.web", "com.example.demo"}) // 保持原有的组件扫描
-@EnableCaching // 修复：添加缺失的注解
-@EnableScheduling // 修复：将这个注解单独一行
+@MapperScan({"org.example.web", "com.example.demo"})
+@ComponentScan({"org.example.web", "com.example.demo"})
+@EnableCaching
+// @EnableScheduling  // 暂时关闭定时任务
 public class WebApplication {
 
     public static void main(String[] args) {
